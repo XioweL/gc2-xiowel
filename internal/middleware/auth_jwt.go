@@ -34,7 +34,7 @@ func CustomJwtMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		// Jika valid, extract claim dan simpan user_id ke dalam context
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
 			if userID, ok := claims["user_id"].(float64); ok {
-				c.Set("user_id", int(userID)) // Menyimpan user_ID di context
+				c.Set("user_id", int(userID)) // Menyimpan user_id ke dalam context Echo
 			}
 		}
 

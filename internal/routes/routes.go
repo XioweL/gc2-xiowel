@@ -19,6 +19,7 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 	//Public Routes
 	e.POST("/users/login", handler.Login)
 	e.POST("/users/register", handler.Register)
+	e.GET("/start-job", handler.RunJob)
 
 	auth := e.Group("")
 	auth.Use(internal.CustomJwtMiddleware)
@@ -112,7 +113,6 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 			})
 		}
 
-		// Call the BorrowBook method from the gRPC client
 		resp, err := client.BorrowBook(c.Request().Context(), req)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{

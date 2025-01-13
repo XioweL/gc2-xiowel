@@ -93,25 +93,18 @@ func (s *BookServiceServer) DeleteBook(ctx context.Context, req *pb.DeleteBookRe
 }
 
 func (s *BookServiceServer) BorrowBook(ctx context.Context, in *pb.BorrowBookRequest) (*pb.BorrowBookResponse, error) {
-	// Log sebelum mengambil user_id
-	log.Println("Available context keys:", ctx)
 	userID := ctx.Value("user_id")
-	log.Println("Extracted user_id from context:", userID)
 
 	log.Printf("User ID extracted from context in gRPC handler: %v", userID)
-
-	log.Println("Extracted user_id from gRPC context:", userID)
 	if userID == nil {
 		return nil, status.Errorf(codes.Unauthenticated, "User ID not found in context")
 	}
 
-	// Pastikan user_id dalam format yang benar (int)
 	userIDInt, ok := userID.(int)
 	if !ok {
 		return nil, status.Errorf(codes.Unauthenticated, "Invalid User ID format")
 	}
 
-	// Cari buku berdasarkan ID
 	var book models.Book
 	if err := config.DB.Where("book_id = ?", in.BookId).First(&book).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -123,7 +116,6 @@ func (s *BookServiceServer) BorrowBook(ctx context.Context, in *pb.BorrowBookReq
 		return nil, status.Errorf(codes.Internal, "Database error: %v", err)
 	}
 
-	// Simpan data peminjaman buku ke dalam tabel borrowedbooks
 	borrowedBook := models.BorrowedBook{
 		BookID:       book.BookID,
 		UserID:       userIDInt,
@@ -135,7 +127,6 @@ func (s *BookServiceServer) BorrowBook(ctx context.Context, in *pb.BorrowBookReq
 		return nil, status.Errorf(codes.Internal, "Failed to borrow book: %v", err)
 	}
 
-	// Return response sukses
 	return &pb.BorrowBookResponse{
 		Status:  "success",
 		Message: "Book borrowed successfully",
