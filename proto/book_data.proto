@@ -5,11 +5,12 @@ package book_data;
 option go_package = "/pb;pb";
 
 message Book {
-  string title = 1;
-  string author = 2;
-  string published_date = 3;
-  string status = 4;
-  int32 user_id = 5;
+  int32 bookId = 1;
+  string title = 2;
+  string author = 3;
+  string published_date = 4;
+  string status = 5;
+  int32 user_id = 6;
 }
 
 message BorrowedBook {
@@ -21,6 +22,7 @@ message BorrowedBook {
 
 service BookService {
   rpc GetBooks(EmptyRequest) returns (BooksResponse);
+  rpc GetBook(GetBookByIdRequest) returns (GetBookByIdResponse);
   rpc CreateBook(CreateBookRequest) returns (CreateBookResponse);
   rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse);
   rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse);
@@ -35,6 +37,16 @@ message BooksResponse {
   repeated Book books = 1;
 }
 
+// Endpoint for getting a book by ID
+message GetBookByIdRequest {
+  int32 book_id = 1;
+}
+
+message GetBookByIdResponse {
+  Book book = 1;
+}
+
+// Endpoint for Borrowing a book
 // Request for borrowing a book
 message BorrowBookRequest {
   int32 book_id = 1;

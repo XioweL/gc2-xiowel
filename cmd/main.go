@@ -2,8 +2,11 @@ package main
 
 import (
 	"gc2-p3-xiowel/config"
+	"gc2-p3-xiowel/grpc"
 	"gc2-p3-xiowel/internal/routes"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,17 +16,16 @@ var jwtSecret []byte
 
 func init() {
 	// Muat .env
-	//if err := godotenv.Load(); err != nil {
 	cwd, _ := os.Getwd()
 	envPath := filepath.Join(cwd, "../.env")
 	if err := godotenv.Load(envPath); err != nil {
 		log.Println("No .env file found, loading environment variables directly")
 	}
 
-	// Inisialisasi JWT Secret
-	//config.InitJwtSecret()
+	//Inisialisasi JWT Secret
+	config.InitJwtSecret()
 
-	// Validasi variabel lingkungan
+	// Validate var env
 	validateEnv()
 }
 
@@ -41,7 +43,16 @@ func main() {
 	config.InitDB()
 	defer config.CloseDB()
 
+	go grpc.StartGRPCServer()
+
+	// Echo server
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	grpcClient := grpc.ConnectGRPCClient()
+	routes.SetupRoutes(e, grpcClient)
+
 	// Setup rute dan jalankan server
-	e := routes.SetupRoutes()
 	e.Logger.Fatal(e.Start(":8080"))
 }
