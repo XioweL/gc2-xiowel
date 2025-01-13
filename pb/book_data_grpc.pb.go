@@ -27,7 +27,7 @@ const (
 	BookService_BorrowBook_FullMethodName = "/book_data.BookService/BorrowBook"
 )
 
-// BookServiceClient is the cmd API for BookService service.
+// BookServiceClient is the client API for BookService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BookServiceClient interface {

@@ -104,10 +104,23 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 		}
 		return c.JSON(http.StatusOK, resp)
 	})
+	auth.POST("/books/borrow", func(c echo.Context) error {
+		req := new(pb.BorrowBookRequest)
+		if err := c.Bind(req); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"error": err.Error(),
+			})
+		}
 
-	//g := e.Group("/students")
-	//g.Use(internal.CustomJwtMiddleware)
-	//g.GET("/me", handler.GetPersonalInfo)
+		// Call the BorrowBook method from the gRPC client
+		resp, err := client.BorrowBook(c.Request().Context(), req)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": err.Error(),
+			})
+		}
+		return c.JSON(http.StatusOK, resp)
+	})
 
 	return e
 }

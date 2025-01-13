@@ -11,9 +11,9 @@ type Book struct {
 }
 
 type BorrowedBook struct {
-	ID           int     `json:"id" gorm:"primaryKey;column:id"`
-	BookID       int     `json:"book_id" gorm:"column:book_id;foreignKey:BookID;references:book_id"`
-	UserID       int     `json:"user_id" gorm:"column:user_id;foreignKey:UserID;references:user_id"`
-	BorrowedDate string  `json:"borrowed_date" gorm:"column:borrowed_date"`
-	ReturnDate   *string `json:"return_date" gorm:"column:return_date"` // Use *string if return_date can be null
+	ID           int    `json:"id" gorm:"primaryKey;column:id"`
+	BookID       int    `json:"book_id" gorm:"column:book_id;foreignKey:BookID;references:book_id"`
+	UserID       int    `json:"user_id" gorm:"column:user_id;foreignKey:UserID;references:user_id"`
+	BorrowedDate string `json:"borrowed_date" gorm:"column:borrowed_date"`
+	ReturnDate   string `json:"return_date" gorm:"column:return_date"`
 }
