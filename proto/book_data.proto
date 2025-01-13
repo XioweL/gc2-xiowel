@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package book_data;
+
+option go_package = "/pb;pb";
+
+message Book {
+  string title = 1;
+  string author = 2;
+  string published_date = 3;
+  string status = 4;
+  int32 user_id = 5;
+}
+
+message BorrowedBook {
+  int32 book_id = 1;
+  int32 user_id = 2;
+  string borrowed_date = 3;
+  string return_date = 4;
+}
+
+service BookService {
+  rpc GetBooks(EmptyRequest) returns (BooksResponse);
+  rpc CreateBook(CreateBookRequest) returns (CreateBookResponse);
+  rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse);
+  rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse);
+  rpc BorrowBook(BorrowBookRequest) returns (BorrowBookResponse);
+}
+
+// Message untuk permintaan kosong (placeholder)
+message EmptyRequest {}
+
+// List of books response
+message BooksResponse {
+  repeated Book books = 1;
+}
+
+// Request for borrowing a book
+message BorrowBookRequest {
+  int32 book_id = 1;
+  string borrowed_date = 2;
+  string return_date = 3;
+}
+
+// Response for borrowing a book
+message BorrowBookResponse {
+  string status = 1;
+  string message = 2;
+}
+
+// Endpoint for creating a book
+message CreateBookRequest {
+  string title = 1;
+  string author = 2;
+  string published_date = 3;
+  string status = 4;
+}
+
+message CreateBookResponse {
+  string message = 1;
+}
+
+// Endpoint for updating a book
+message UpdateBookRequest {
+  int32 book_id = 1;
+  string title = 2;
+  string author = 3;
+  string published_date = 4;
+  string status = 5;
+}
+
+message UpdateBookResponse {
+  string message = 1;
+}
+
+// Endpoint for deleting a book
+message DeleteBookRequest {
+  int32 book_id = 1;
+}
+
+message DeleteBookResponse {
+  string message = 1;
+}

@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package auth;
+option go_package = "/pb;pb";
+
+
+message Users {
+  string username = 1;
+  string password = 2;
+}
+
+service AuthService {
+  // Endpoint for user registration
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+  // Endpoint for user login
+  rpc Login(LoginRequest) returns (LoginResponse);
+}
+
+// Message for user registration request
+message RegisterRequest {
+  string username = 1;    // User's username for registration
+  string password = 2; // Password for the account
+}
+
+// Message for user registration response
+message RegisterResponse {
+  string message = 1;  // Example: "Registration successful"
+}
+
+// Message for user login request
+message LoginRequest {
+  string username = 1;    // User's username for login
+  string password = 2; // Password for authentication
+}
+
+// Message for user login response
+message LoginResponse {
+  string message = 1;      // Example: "Login successful"
+  string token = 2;        // JWT token for authentication
+}
