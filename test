@@ -1,0 +1,147 @@
+POST http://localhost:8080/users/login
+200
+{
+    "message": "Login success",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY5MzExNDQsInVzZXJfaWQiOjd9.Ox-C8fQWGdnOeQWx2Ox5nwAtXH1RTlFd66Gysh7ozrQ"
+}
+401
+{
+    "message": "Invalid username or password"
+}
+500
+{
+    "message": "Internal server error"
+}
+POST http://localhost:8080/users/register
+200
+{
+    "message": "Register success"
+}
+409
+{
+    "message": "Username already exists"
+}
+500
+{
+    "message": "Internal server error"
+}
+
+GET http://localhost:8080/books/all
+200
+[
+    {
+        "bookId": 2,
+        "title": "AVATAR ANGG",
+        "author": "otongg",
+        "published_date": "2006-01-02T00:00:00Z",
+        "status": "Available"
+    },
+    {
+        "bookId": 3,
+        "title": "AVATAR KORA",
+        "author": "FERDI",
+        "published_date": "2006-01-02T00:00:00Z",
+        "status": "Available"
+    }
+]
+
+401
+{
+    "message": "Invalid or expired token"
+}
+500
+{
+    "message": "Internal server error"
+}
+
+GET http://localhost:8080/books/:id
+200
+{
+    "bookId": 2,
+    "title": "AVATAR ANGG",
+    "author": "otongg",
+    "published_date": "2006-01-02T00:00:00Z",
+    "status": "Available"
+}
+404
+{
+    "message": "Book not found"
+}
+401
+{
+    "message": "Invalid or expired token"
+}
+500
+{
+    "message": "Internal server error"
+}
+
+POST http://localhost:8080/books/create
+200
+{
+    "message": "Book created successfully"
+}
+401
+{
+    "message": "Invalid or expired token"
+}
+500
+{
+    "error": "rpc error: code = InvalidArgument desc = Invalid status"
+}
+
+PUT http://localhost:8080/books/update/:id
+200
+{
+    "message": "Book updated successfully"
+}
+401
+{
+    "message": "Invalid or expired token"
+}
+404
+{
+    "error": "rpc error: code = NotFound desc = Book not found"
+}
+500
+{
+    "error": "rpc error: code = InvalidArgument desc = Invalid status"
+}
+
+DELETE http://localhost:8080/books/delete/:id
+200
+{
+    "message": "Book deleted successfully"
+}
+401
+{
+    "message": "Invalid or expired token"
+}
+404
+{
+    "error": "rpc error: code = NotFound desc = Book not found"
+}
+500
+{
+    "error": "rpc error: code = InvalidArgument desc = Invalid status"
+}
+
+POST http://localhost:8080/books/borrow
+200
+{
+    "status": "success",
+    "message": "Book borrowed successfully"
+}
+401
+{
+    "message": "Invalid or expired token"
+}
+404
+{
+    "status": "failure",
+    "message": "Book not found"
+}
+500
+{
+    "error": "rpc error: code = InvalidArgument desc = Invalid status"
+}

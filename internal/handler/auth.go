@@ -18,6 +18,18 @@ func Register(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid request"})
 	}
+	// Validate Input
+	if req.Username == "" || req.Password == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid request"})
+	}
+
+	var existingUser models.User
+	if err := config.DB.Where("username = ?", req.Username).First(&existingUser).Error; err == nil {
+		return c.JSON(http.StatusConflict, map[string]string{"message": "Username already exists"})
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		log.Println("Database error:", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal Database Error"})
+	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -42,23 +54,27 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid request"})
 	}
 
+	// Periksa Username dan Password
 	if req.Username == "" || req.Password == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Username and password are required"})
+		return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Username and password are required"})
 	}
 
+	// Cek User di Database
 	var user models.User
 	if err := config.DB.Where("username = ?", req.Username).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid username or password"})
+			return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid username or password"})
 		}
 		log.Println("Database error:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal Database Error"})
 	}
 
+	// Bandingkan Password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid username or password"})
+		return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Invalid username or password"})
 	}
 
+	// Buat Token JWT
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.UserID,
 		"exp":     time.Now().Add(time.Hour * 24).Unix(),

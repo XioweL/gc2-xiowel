@@ -18,7 +18,8 @@ var DB *gorm.DB
 func InitDB() {
 	// Mengambil path untuk file .env
 	cwd, _ := os.Getwd()
-	envPath := filepath.Join(cwd, "../.env")
+	envPath := filepath.Join(cwd, ".env")
+	log.Printf("Loading environment variables from: %s", envPath)
 
 	// Memuat variabel environment dari .env
 	err := godotenv.Load(envPath)

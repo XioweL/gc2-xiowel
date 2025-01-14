@@ -17,7 +17,8 @@ var jwtSecret []byte
 func init() {
 	// Muat .env
 	cwd, _ := os.Getwd()
-	envPath := filepath.Join(cwd, "../.env")
+	envPath := filepath.Join(cwd, ".env")
+	log.Printf("Loading environment variables from: %s", envPath)
 	if err := godotenv.Load(envPath); err != nil {
 		log.Println("No .env file found, loading environment variables directly")
 	}

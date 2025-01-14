@@ -25,7 +25,14 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 	auth := e.Group("")
 	auth.Use(internal.CustomJwtMiddleware)
 	auth.GET("/books/all", func(c echo.Context) error {
-		resp, err := client.GetBooks(c.Request().Context(), &pb.EmptyRequest{})
+		authHeader := c.Request().Header.Get("Authorization")
+		md := metadata.New(map[string]string{
+			"authorization": authHeader,
+		})
+		// Tambahkan metadata ke context
+		ctx := metadata.NewOutgoingContext(c.Request().Context(), md)
+
+		resp, err := client.GetBooks(ctx, &pb.EmptyRequest{})
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": err.Error(),
@@ -41,7 +48,16 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 				"error": fmt.Sprintf("invalid id: %v", err),
 			})
 		}
-		resp, err := client.GetBook(c.Request().Context(), &pb.GetBookByIdRequest{BookId: int32(bookId)})
+
+		// Ambil Authorization header dan tambahkan sebagai metadata untuk gRPC
+		authHeader := c.Request().Header.Get("Authorization")
+		md := metadata.New(map[string]string{
+			"authorization": authHeader,
+		})
+		ctx := metadata.NewOutgoingContext(c.Request().Context(), md)
+
+		// Panggilan gRPC dengan metadata
+		resp, err := client.GetBook(ctx, &pb.GetBookByIdRequest{BookId: int32(bookId)})
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": err.Error(),
@@ -57,7 +73,15 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 				"error": err.Error(),
 			})
 		}
-		resp, err := client.CreateBook(c.Request().Context(), req)
+
+		// Ambil Authorization header dan tambahkan sebagai metadata untuk gRPC
+		authHeader := c.Request().Header.Get("Authorization")
+		md := metadata.New(map[string]string{
+			"authorization": authHeader,
+		})
+		ctx := metadata.NewOutgoingContext(c.Request().Context(), md)
+
+		resp, err := client.CreateBook(ctx, req)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": err.Error(),
@@ -74,6 +98,7 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 				"error": fmt.Sprintf("invalid id: %v", err),
 			})
 		}
+
 		req := new(pb.UpdateBookRequest)
 		if err := c.Bind(req); err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]string{
@@ -81,7 +106,15 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 			})
 		}
 		req.BookId = int32(bookId)
-		resp, err := client.UpdateBook(c.Request().Context(), req)
+
+		// Ambil Authorization header dan tambahkan sebagai metadata untuk gRPC
+		authHeader := c.Request().Header.Get("Authorization")
+		md := metadata.New(map[string]string{
+			"authorization": authHeader,
+		})
+		ctx := metadata.NewOutgoingContext(c.Request().Context(), md)
+
+		resp, err := client.UpdateBook(ctx, req)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": err.Error(),
@@ -98,7 +131,15 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 				"error": fmt.Sprintf("invalid id: %v", err),
 			})
 		}
-		resp, err := client.DeleteBook(c.Request().Context(), &pb.DeleteBookRequest{BookId: int32(bookId)})
+
+		// Ambil Authorization header dan tambahkan sebagai metadata untuk gRPC
+		authHeader := c.Request().Header.Get("Authorization")
+		md := metadata.New(map[string]string{
+			"authorization": authHeader,
+		})
+		ctx := metadata.NewOutgoingContext(c.Request().Context(), md)
+
+		resp, err := client.DeleteBook(ctx, &pb.DeleteBookRequest{BookId: int32(bookId)})
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": err.Error(),

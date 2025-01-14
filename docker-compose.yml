@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  app:
+    image: gc2-p3-xiowel
+    env_file:
+      - .env
+    build: .
+    ports:
+      - "8080:8080"

@@ -1,0 +1,368 @@
+openapi: 3.0.0
+info:
+  title: Books Management API
+  description: API untuk mengelola buku, termasuk login, registrasi, dan operasi CRUD pada buku.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /users/login:
+    post:
+      summary: Login pengguna
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+        '401':
+          description: Username atau password tidak valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid username or password
+        '500':
+          description: Kesalahan server internal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+
+  /users/register:
+    post:
+      summary: Registrasi pengguna baru
+      responses:
+        '200':
+          description: Registrasi berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Register success
+        '409':
+          description: Username sudah terdaftar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Username already exists
+        '500':
+          description: Kesalahan server internal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+
+  /books/all:
+    get:
+      summary: Mendapatkan semua buku
+      responses:
+        '200':
+          description: Daftar buku berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    bookId:
+                      type: integer
+                    title:
+                      type: string
+                    author:
+                      type: string
+                    published_date:
+                      type: string
+                      format: date-time
+                    status:
+                      type: string
+        '401':
+          description: Token tidak valid atau kadaluwarsa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid or expired token
+        '500':
+          description: Kesalahan server internal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+
+  /books/{id}:
+    get:
+      summary: Mendapatkan detail buku berdasarkan ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID buku
+      responses:
+        '200':
+          description: Detail buku berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookId:
+                    type: integer
+                  title:
+                    type: string
+                  author:
+                    type: string
+                  published_date:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+        '404':
+          description: Buku tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Book not found
+        '401':
+          description: Token tidak valid atau kadaluwarsa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid or expired token
+        '500':
+          description: Kesalahan server internal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal server error
+
+  /books/create:
+    post:
+      summary: Membuat buku baru
+      responses:
+        '200':
+          description: Buku berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Book created successfully
+        '401':
+          description: Token tidak valid atau kadaluwarsa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid or expired token
+        '500':
+          description: Kesalahan server internal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /books/update/{id}:
+    put:
+      summary: Memperbarui buku berdasarkan ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID buku
+      responses:
+        '200':
+          description: Buku berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Book updated successfully
+        '401':
+          description: Token tidak valid atau kadaluwarsa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid or expired token
+        '404':
+          description: Buku tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Book not found
+        '500':
+          description: Kesalahan server internal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /books/delete/{id}:
+    delete:
+      summary: Menghapus buku berdasarkan ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID buku
+      responses:
+        '200':
+          description: Buku berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Book deleted successfully
+        '401':
+          description: Token tidak valid atau kadaluwarsa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid or expired token
+        '404':
+          description: Buku tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Book not found
+        '500':
+          description: Kesalahan server internal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /books/borrow:
+    post:
+      summary: Meminjam buku
+      responses:
+        '200':
+          description: Buku berhasil dipinjam
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                    example: Book borrowed successfully
+        '401':
+          description: Token tidak valid atau kadaluwarsa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid or expired token
+        '404':
+          description: Buku tidak ditemukan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                    example: Book not found
+        '500':
+          description: Kesalahan server internal
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

@@ -63,6 +63,13 @@ func (s *BookServiceServer) CreateBook(ctx context.Context, req *pb.CreateBookRe
 		PublishedDate: req.PublishedDate,
 		Status:        req.Status,
 	}
+
+	if book.Status == "" {
+		book.Status = "Available"
+	} else if book.Status != "Available" && book.Status != "Borrowed" {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid status")
+	}
+
 	if err := config.DB.Create(&book).Error; err != nil {
 		return nil, err
 	}
@@ -72,8 +79,12 @@ func (s *BookServiceServer) CreateBook(ctx context.Context, req *pb.CreateBookRe
 
 func (s *BookServiceServer) UpdateBook(ctx context.Context, req *pb.UpdateBookRequest) (*pb.UpdateBookResponse, error) {
 	var book models.Book
+
 	result := config.DB.First(&book, req.BookId)
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Book not found")
+		}
 		return nil, result.Error
 	}
 	book.Title = req.Title
@@ -81,15 +92,34 @@ func (s *BookServiceServer) UpdateBook(ctx context.Context, req *pb.UpdateBookRe
 	book.PublishedDate = req.PublishedDate
 	book.Status = req.Status
 
+	if book.Status == "" {
+		book.Status = "Available"
+	} else if book.Status != "Available" && book.Status != "Borrowed" {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid status")
+	}
+
 	config.DB.Save(&book)
 	return &pb.UpdateBookResponse{Message: "Book updated successfully"}, nil
 }
 
 func (s *BookServiceServer) DeleteBook(ctx context.Context, req *pb.DeleteBookRequest) (*pb.DeleteBookResponse, error) {
-	result := config.DB.Delete(&models.Book{}, req.BookId)
+	var book models.Book
+
+	// Cari buku berdasarkan ID
+	result := config.DB.First(&book, req.BookId)
 	if result.Error != nil {
-		return nil, result.Error
+		// Jika buku tidak ditemukan
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Book not found")
+		}
+		return nil, status.Errorf(codes.Internal, "Database error: %v", result.Error)
 	}
+
+	// Hapus buku
+	if err := config.DB.Delete(&book).Error; err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed to delete book: %v", err)
+	}
+
 	return &pb.DeleteBookResponse{Message: "Book deleted successfully"}, nil
 }
 
@@ -111,6 +141,10 @@ func (s *BookServiceServer) BorrowBook(ctx context.Context, in *pb.BorrowBookReq
 		return nil, status.Errorf(codes.Internal, "Database error: %v", err)
 	}
 
+	if book.Status != "Available" {
+		return nil, status.Errorf(codes.FailedPrecondition, "Book is not available for borrowing")
+	}
+
 	borrowedBook := models.BorrowedBook{
 		BookID:       book.BookID,
 		UserID:       int(userID),
@@ -118,8 +152,15 @@ func (s *BookServiceServer) BorrowBook(ctx context.Context, in *pb.BorrowBookReq
 		ReturnDate:   in.ReturnDate,
 	}
 
+	// Simpan data peminjaman buku
 	if err := config.DB.Create(&borrowedBook).Error; err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to borrow book: %v", err)
+	}
+
+	// Update status buku menjadi 'Borrowed'
+	book.Status = "Borrowed"
+	if err := config.DB.Save(&book).Error; err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed to update book status: %v", err)
 	}
 
 	return &pb.BorrowBookResponse{

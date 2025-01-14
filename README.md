@@ -74,4 +74,4 @@ Deadline : Diinformasikan oleh instruktur saat briefing GC. Keterlambatan pengum
 Informasi yang tidak dicantumkan pada file ini harap dipastikan/ditanyakan kembali kepada instruktur. Kesalahan asumsi dari peserta mungkin akan menyebabkan kesalahan pemahaman requirement dan mengakibatkan pengurangan nilai.
 
 ### Deployment Notes
-- Deployed url: _________ (isi dengan url hasil deployment anda)
+- Deployed url: https://xiowel-gradedc2-840757036413.asia-southeast2.run.app (isi dengan url hasil deployment anda)
