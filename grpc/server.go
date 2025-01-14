@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"gc2-p3-xiowel/internal/handler"
+	internal "gc2-p3-xiowel/internal/middleware"
 	"gc2-p3-xiowel/pb"
 	"google.golang.org/grpc"
 	"log"
@@ -10,7 +11,9 @@ import (
 
 func StartGRPCServer() {
 	// Membuat server GRPC
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(internal.JwtUnaryInterceptor),
+	)
 
 	// Mendaftarkan service ke server GRPC
 	pb.RegisterBookServiceServer(grpcServer, &handler.BookServiceServer{})

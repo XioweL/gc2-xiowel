@@ -7,6 +7,7 @@ import (
 	"gc2-p3-xiowel/pb"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"google.golang.org/grpc/metadata"
 	"net/http"
 	"strconv"
 )
@@ -105,7 +106,9 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 		}
 		return c.JSON(http.StatusOK, resp)
 	})
-	auth.POST("/books/borrow", func(c echo.Context) error {
+	rpc := e.Group("")
+	rpc.Use(internal.CustomGrpcJwtMiddleware)
+	rpc.POST("/books/borrow", func(c echo.Context) error {
 		req := new(pb.BorrowBookRequest)
 		if err := c.Bind(req); err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]string{
@@ -113,12 +116,21 @@ func SetupRoutes(e *echo.Echo, client pb.BookServiceClient) *echo.Echo {
 			})
 		}
 
-		resp, err := client.BorrowBook(c.Request().Context(), req)
+		// Teruskan Authorization header ke metadata
+		authHeader := c.Request().Header.Get("Authorization")
+		md := metadata.New(map[string]string{
+			"authorization": authHeader,
+		})
+		ctx := metadata.NewOutgoingContext(c.Request().Context(), md)
+
+		// Panggil gRPC dengan konteks metadata
+		resp, err := client.BorrowBook(ctx, req)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"error": err.Error(),
 			})
 		}
+
 		return c.JSON(http.StatusOK, resp)
 	})
 

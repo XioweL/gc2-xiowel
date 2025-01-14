@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"gc2-p3-xiowel/config"
+	internal "gc2-p3-xiowel/internal/middleware"
 	"gc2-p3-xiowel/internal/models"
 	"gc2-p3-xiowel/pb"
 	"golang.org/x/net/context"
@@ -93,16 +94,10 @@ func (s *BookServiceServer) DeleteBook(ctx context.Context, req *pb.DeleteBookRe
 }
 
 func (s *BookServiceServer) BorrowBook(ctx context.Context, in *pb.BorrowBookRequest) (*pb.BorrowBookResponse, error) {
-	userID := ctx.Value("user_id")
-
-	log.Printf("User ID extracted from context in gRPC handler: %v", userID)
-	if userID == nil {
+	userID, ok := ctx.Value(internal.UserIDKey).(int32)
+	if !ok || userID == 0 {
+		log.Println("User ID not found in context")
 		return nil, status.Errorf(codes.Unauthenticated, "User ID not found in context")
-	}
-
-	userIDInt, ok := userID.(int)
-	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, "Invalid User ID format")
 	}
 
 	var book models.Book
@@ -118,7 +113,7 @@ func (s *BookServiceServer) BorrowBook(ctx context.Context, in *pb.BorrowBookReq
 
 	borrowedBook := models.BorrowedBook{
 		BookID:       book.BookID,
-		UserID:       userIDInt,
+		UserID:       int(userID),
 		BorrowedDate: in.BorrowedDate,
 		ReturnDate:   in.ReturnDate,
 	}

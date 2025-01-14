@@ -27,6 +27,7 @@ service BookService {
   rpc UpdateBook(UpdateBookRequest) returns (UpdateBookResponse);
   rpc DeleteBook(DeleteBookRequest) returns (DeleteBookResponse);
   rpc BorrowBook(BorrowBookRequest) returns (BorrowBookResponse);
+//  rpc ReturnBook(ReturnBookRequest) returns (ReturnBookResponse);
 }
 
 // Message untuk permintaan kosong (placeholder)
@@ -52,12 +53,19 @@ message BorrowBookRequest {
   int32 book_id = 1;
   string borrowed_date = 2;
   string return_date = 3;
+//  int32 user_id = 4;
 }
 
 // Response for borrowing a book
 message BorrowBookResponse {
   string status = 1;
   string message = 2;
+}
+
+// Endpoint for Returning a book
+message ReturnBookRequest {
+  int32 book_id = 1;
+
 }
 
 // Endpoint for creating a book

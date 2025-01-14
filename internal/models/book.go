@@ -17,3 +17,7 @@ type BorrowedBook struct {
 	BorrowedDate string `json:"borrowed_date" gorm:"column:borrowed_date"`
 	ReturnDate   string `json:"return_date" gorm:"column:return_date"`
 }
+
+func (BorrowedBook) TableName() string {
+	return "borrowedbooks"
+}
